@@ -1,0 +1,20 @@
+[Unit]
+Description=LendLog full-stack application
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/lendlog
+EnvironmentFile=/home/ubuntu/lendlog/.env
+ExecStart=/home/ubuntu/lendlog/.venv/bin/gunicorn --workers 1 --threads 2 --bind 127.0.0.1:8000 --access-logfile - --error-logfile - fullstack:create_app()
+Restart=always
+RestartSec=5
+TimeoutStopSec=30
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

@@ -1368,13 +1368,16 @@ select option {
 .lend-loan small { display: block; color: var(--z-muted); font-size: 12px; }
 .lend-notice { margin-top: auto; padding: 24px 12px; color: var(--z-muted); font-size: 12px; }
 .lend-count { color: var(--z-muted); font-size: 13px; }
+.lend-content .z-form { max-width: none; }
+.lend-content > .z-page-heading { margin-bottom: 8px; }
+#save-status { overflow-wrap: anywhere; }
 @media (max-width:760px) { .lend-form-grid,.lend-loan { grid-template-columns: 1fr; gap: 12px; } }
 </style></head>
 <body class="z-generated" data-screen-route="/">
 <a class="z-skip" href="#main-content">Skip to content</a>
 <div class="z-shell">
   <aside class="z-sidebar" id="workspace-navigation" aria-label="Application navigation">
-    <a class="z-brand" href="/"><span class="z-brand-mark"><svg class="z-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="m12 3 10 5-10 5L2 8l10-5Zm-10 9 10 5 10-5M2 16l10 5 10-5"/></svg></span><span>LendLog<small>Remember who borrowed it.</small></span></a>
+    <a class="z-brand" href="/"><span class="z-brand-mark"><svg class="z-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="m12 3 10 5-10 5L2 8l10-5Zm-10 9 10 5 10-5M2 16l10 5 10-5"/></svg></span><span>LendLog<small>Track your loans.</small></span></a>
     <button class="z-mobile-close z-button z-button--icon" type="button" data-nav-close aria-label="Close navigation">×</button>
     <nav aria-label="Main"><a class="z-nav-link" href="/" aria-current="page"><svg class="z-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M8 4h13v17H3V4h5M8 3h8v4H8zM7 12h10M7 16h10"/></svg><span>My loans</span></a></nav>
     <p class="lend-notice">Saved only in this browser. No account or cloud sync. Anyone using this browser profile may see your list.</p>

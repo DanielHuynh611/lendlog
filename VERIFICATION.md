@@ -1,3 +1,20 @@
+# Improved application verification — 17 October 2026
+
+- 38 automated checks passed, including isolated optional database API tests.
+- Desktop (1440px) and mobile (390px) browser checks passed for save, refresh,
+  reopening, duplicate names, Unicode, cross-tab updates and independent lists.
+- Blocked storage, corrupted data and full storage preserve drafts, do not
+  overwrite records, and do not falsely report a successful save.
+- A 200-record list rendered newest-first without horizontal overflow.
+- Browser checks confirmed the visible UI makes no loan API calls.
+- The exact Gunicorn factory entry point started and served the app successfully.
+- The optional MySQL path was not exercised against a live server: local MySQL
+  cannot start because its installed protobuf library is missing; Docker is not
+  running. SQLite-backed API checks passed. Do not treat this as live MySQL QA.
+- EC2, DNS, HTTPS issuance and Linux systemd execution still require deployment.
+
+## Original platform-generated history
+
 # Verification results
 
 Start with the report for the part of the application you are working on:

@@ -1,4 +1,9 @@
-# lendlog full-stack application
+# LendLog full-stack application
+
+The generated starter instructions below are historical. For the improved app,
+current local run commands, browser-local storage behaviour and EC2 deployment,
+use [README.md](README.md). The active entry point is
+`flask --app 'fullstack:create_app()' run --debug --port 5001`.
 
 This package combines the saved backend with the current complete responsive
 Frontend Generator pages. Generated backend feature modules are preserved.
