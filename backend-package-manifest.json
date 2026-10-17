@@ -1,0 +1,16 @@
+{
+  "function_ids": [
+    "capability_local_browser_storage_03ab1d7c.function.create_loan_record",
+    "capability_local_browser_storage_03ab1d7c.function.get_all_loan_records",
+    "capability_record_item_and_borrower_3af7a315.function.create_loan_record",
+    "capability_record_item_and_borrower_3af7a315.function.get_loan_records",
+    "capability_view_loan_list_e3bf329c.function.get_loans"
+  ],
+  "project_slug": "lendlog",
+  "schema_version": "backend-package-source-manifest-v2",
+  "source": {
+    "architecture_id": "architecture:scope_lendlog_bdfde953:9d82d1b676a6cb03a88f341ab75048245f4f077016f30afe533721070a20f604",
+    "architecture_session_id": "631fd820-3732-40c0-a3e6-1dd2d9e88022",
+    "architecture_source_hash": "9d82d1b676a6cb03a88f341ab75048245f4f077016f30afe533721070a20f604"
+  }
+}

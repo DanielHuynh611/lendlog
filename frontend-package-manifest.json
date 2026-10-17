@@ -1,0 +1,85 @@
+{
+  "normalizations": {
+    "backend_application_imports": [],
+    "legacy_tailwind_runtime_removed": []
+  },
+  "project_slug": "lendlog",
+  "route_collisions": [
+    {
+      "registered_path": "frontend/features/local_browser_storage/main_loan_list.html",
+      "registered_screen_id": "capability_local_browser_storage_03ab1d7c.screen.main_loan_list",
+      "route": "/",
+      "unregistered_path": "frontend/features/record_item_and_borrower/loan_entry_screen.html",
+      "unregistered_screen_id": "capability_record_item_and_borrower_3af7a315.screen.loan_entry"
+    },
+    {
+      "registered_path": "frontend/features/local_browser_storage/main_loan_list.html",
+      "registered_screen_id": "capability_local_browser_storage_03ab1d7c.screen.main_loan_list",
+      "route": "/",
+      "unregistered_path": "frontend/features/view_loan_list/loan_list.html",
+      "unregistered_screen_id": "capability_view_loan_list_e3bf329c.screen.loan_list"
+    },
+    {
+      "registered_path": "frontend/features/local_browser_storage/main_loan_list.html",
+      "registered_screen_id": "capability_local_browser_storage_03ab1d7c.screen.main_loan_list",
+      "route": "/",
+      "unregistered_path": "frontend/features/character_limit_validation/main_loan_entry_screen.html",
+      "unregistered_screen_id": "capability_character_limit_validation_533aef43.screen.main_loan_entry"
+    },
+    {
+      "registered_path": "frontend/features/local_browser_storage/main_loan_list.html",
+      "registered_screen_id": "capability_local_browser_storage_03ab1d7c.screen.main_loan_list",
+      "route": "/",
+      "unregistered_path": "frontend/features/required_field_validation/loan_entry_form_with_validation.html",
+      "unregistered_screen_id": "capability_required_field_validation_18c05c66.screen.loan_entry_form"
+    },
+    {
+      "registered_path": "frontend/features/local_browser_storage/main_loan_list.html",
+      "registered_screen_id": "capability_local_browser_storage_03ab1d7c.screen.main_loan_list",
+      "route": "/",
+      "unregistered_path": "frontend/features/single_screen_layout/main_screen.html",
+      "unregistered_screen_id": "capability_single_screen_layout_3203f8ec.screen.main"
+    },
+    {
+      "registered_path": "frontend/features/local_browser_storage/main_loan_list.html",
+      "registered_screen_id": "capability_local_browser_storage_03ab1d7c.screen.main_loan_list",
+      "route": "/",
+      "unregistered_path": "frontend/features/inline_error_messages/main_form_with_inline_error_messages.html",
+      "unregistered_screen_id": "capability_inline_error_messages_9ddfedf0.screen.main_form_with_inline_errors"
+    }
+  ],
+  "runtime_verification": {
+    "errors": [],
+    "valid": true
+  },
+  "schema_version": "frontend-package-manifest-v5",
+  "screen_routes": [
+    {
+      "feature_id": "capability_local_browser_storage_03ab1d7c",
+      "path": "frontend/features/local_browser_storage/main_loan_list.html",
+      "route": "/",
+      "screen_id": "capability_local_browser_storage_03ab1d7c.screen.main_loan_list"
+    }
+  ],
+  "source": {
+    "architecture_workspace_id": "631fd820-3732-40c0-a3e6-1dd2d9e88022",
+    "backend_package_hash": "a43845ae833e769d0f6bd3536f4ede4b49d623ef2a2372298a758bd2848216d5",
+    "backend_package_id": "b6502a11-f769-4e29-a174-9005b8629f7d",
+    "backend_workspace_id": "007518e7-2462-43d5-9206-ad0a779472c6",
+    "feature_hashes": {
+      "capability_character_limit_validation_533aef43": "afc4b364e4efa7bfa3680c10f10efaee84e45f12a7c24cb3ebf34b9a5ce4bdd6",
+      "capability_inline_error_messages_9ddfedf0": "81c127835813dce3059d2fe72ec54d79e1d533444146b5409257b413db445ed3",
+      "capability_local_browser_storage_03ab1d7c": "a7c9bf55b5c716fcaffb29ae50fb99cc29d4ff7beaba6da872a11cd1e7959aea",
+      "capability_record_item_and_borrower_3af7a315": "26579436120774f44400d9c0f4370a86d4ed57c4bc4aed9f7f2e363593040005",
+      "capability_required_field_validation_18c05c66": "1d9906d43b0618001186409682f57e477978e18c11bc274c2ae41fbe1aee3548",
+      "capability_single_screen_layout_3203f8ec": "3f16820ff2590ed2932e147dc6e0cee20471d5cd6950ff232b0a796a702e30ee",
+      "capability_view_loan_list_e3bf329c": "74274a967994a15a41eb6da68bf064464f306c3d6a5080ceb3288387c5e36fcc"
+    },
+    "foundation_hash": "12d1e51974db59f59feae268f5864a03df39cac87ce0f2cc64848f5c2418fc0b",
+    "ui_library": {
+      "compiler_version": "frontend-visual-compiler-v5",
+      "theme": "orange",
+      "version": "zorentia-ui-2"
+    }
+  }
+}
