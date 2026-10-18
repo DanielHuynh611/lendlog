@@ -3,11 +3,15 @@
 import re
 from pathlib import Path
 
-from flask import abort, send_file, redirect
+from flask import abort, send_file, redirect, render_template
 from backend import create_app as create_backend_app
+from backend.core.auth import require_auth
 
 PROJECT_ROOT = Path(__file__).resolve().parent
-SCREEN_ROUTES = {'/': 'frontend/features/local_browser_storage/main_loan_list.html'}
+SCREEN_ROUTES = {
+    '/': 'frontend/features/local_browser_storage/main_loan_list.html',
+    '/history': 'frontend/features/local_browser_storage/history.html',
+}
 FRONTEND_OWNED_BACKEND_ROUTES = set([])
 ENTRY_ROUTE = '/'
 
@@ -30,6 +34,11 @@ def _project_file(relative_path):
 def create_app(testing=False, config=None):
     app = create_backend_app(testing=testing, config=config)
 
+    @app.get('/account')
+    @require_auth
+    def old_account_page():
+        return redirect('/')
+
     @app.get("/static/css/app.css")
     def frontend_css():
         return send_file(
@@ -50,8 +59,9 @@ def create_app(testing=False, config=None):
     for index, (route, relative_path) in enumerate(SCREEN_ROUTES.items()):
         target = _project_file(relative_path)
 
+        @require_auth
         def serve_screen(_target=target, **_route_parameters):
-            return send_file(_target, mimetype="text/html")
+            return render_template(str(_target.relative_to(PROJECT_ROOT / 'frontend')))
 
         flask_route = _flask_route(route)
         existing = next((rule for rule in app.url_map.iter_rules() if rule.rule == flask_route and "GET" in rule.methods), None)

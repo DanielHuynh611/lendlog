@@ -1,20 +1,31 @@
 """One pooled engine and one loan store for the optional generated APIs."""
 import click
 from flask import current_app
-from sqlalchemy import CheckConstraint, Column, DateTime, Index, MetaData, String, Table, column, create_engine, event, func
+from sqlalchemy import CheckConstraint, Column, DateTime, ForeignKey, Index, MetaData, String, Table, column, create_engine, event, func
 from sqlalchemy.pool import StaticPool
 
 metadata = MetaData()
-loans = Table(
-    'loan_records', metadata,
+users = Table(
+    'lendlog_users', metadata,
     Column('id', String(36), primary_key=True),
-    Column('browser_id', String(36), nullable=False),
+    Column('email', String(254), nullable=False, unique=True),
+    Column('password_hash', String(255), nullable=False),
+    Column('created_at', DateTime, nullable=False),
+)
+loans = Table(
+    'lendlog_loans', metadata,
+    Column('id', String(36), primary_key=True),
+    Column('user_id', String(36), ForeignKey('lendlog_users.id'), nullable=False),
     Column('item_name', String(100), nullable=False),
     Column('borrower_name', String(100), nullable=False),
     Column('created_at', DateTime, nullable=False),
+    Column('status', String(16), nullable=False, server_default='active'),
+    Column('returned_at', DateTime, nullable=True),
     CheckConstraint(func.char_length(func.trim(column('item_name'))).between(1, 100), name='ck_loan_item'),
     CheckConstraint(func.char_length(func.trim(column('borrower_name'))).between(1, 100), name='ck_loan_borrower'),
-    Index('ix_loan_browser_created', 'browser_id', 'created_at'),
+    CheckConstraint("status IN ('active', 'returned')", name='ck_loan_status'),
+    CheckConstraint("(status = 'active' AND returned_at IS NULL) OR (status = 'returned' AND returned_at IS NOT NULL)", name='ck_loan_return_date'),
+    Index('ix_lendlog_user_status_created', 'user_id', 'status', 'created_at'),
 )
 
 def configure_database(app):
@@ -29,6 +40,10 @@ def configure_database(app):
         else:
             options.update(pool_size=2, max_overflow=1, pool_recycle=1800, connect_args={'connection_timeout': 5})
         engine = create_engine(url, **options)
+        if engine.dialect.name == 'sqlite':
+            @event.listens_for(engine, 'connect')
+            def foreign_keys(connection, _record):
+                connection.execute('PRAGMA foreign_keys=ON')
         if engine.dialect.name == 'mysql':
             @event.listens_for(engine, 'connect')
             def utc(connection, _record):

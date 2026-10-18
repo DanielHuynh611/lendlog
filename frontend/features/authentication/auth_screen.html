@@ -1,0 +1,22 @@
+{% extends "features/local_browser_storage/main_loan_list.html" %}
+{% block page_title %}{{ 'Create account' if mode == 'register' else 'Sign in' }}{% endblock %}
+{% block layout %}
+<div class="lend-auth">
+  <a class="z-brand" href="/login"><span class="z-brand-mark"><svg class="z-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="m12 3 10 5-10 5L2 8l10-5Zm-10 9 10 5 10-5M2 16l10 5 10-5"/></svg></span><span>LendLog<small>Track your loans.</small></span></a>
+  <main id="main-content" class="z-stack">
+    <header><h1>{{ 'Create account' if mode == 'register' else 'Sign in' }}</h1><p class="z-lead">Keep your loans together, privately.</p></header>
+    <section class="z-panel"><div class="z-panel-body">
+      <form class="z-form" method="post" action="/{{ mode }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="z-field"><label for="email">Email</label><input class="z-input" id="email" name="email" type="email" value="{{ email }}" maxlength="254" autocomplete="email" required></div>
+        <div class="z-field"><label for="password">Password</label><input class="z-input" id="password" name="password" type="password" minlength="8" maxlength="128" autocomplete="{{ 'new-password' if mode == 'register' else 'current-password' }}" required aria-describedby="password-help"><small id="password-help">Use 8–128 characters.</small></div>
+        {% if mode == 'register' %}<div class="z-field"><label for="confirm-password">Confirm password</label><input class="z-input" id="confirm-password" name="confirm_password" type="password" minlength="8" maxlength="128" autocomplete="new-password" required></div>{% endif %}
+        {% if error %}<p class="lend-error" role="alert">{{ error }}</p>{% endif %}
+        <div class="z-form-actions"><button class="z-button z-button--primary" type="submit">{{ 'Create account' if mode == 'register' else 'Sign in' }}</button></div>
+        <p class="z-lead">{{ 'Already have an account?' if mode == 'register' else 'New to LendLog?' }} <a href="{{ '/login' if mode == 'register' else '/register' }}">{{ 'Sign in' if mode == 'register' else 'Create account' }}</a></p>
+      </form>
+    </div></section>
+  </main>
+</div>
+{% endblock %}
+{% block screen_scripts %}{% endblock %}

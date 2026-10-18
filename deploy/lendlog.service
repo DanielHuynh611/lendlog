@@ -1,7 +1,7 @@
 [Unit]
 Description=LendLog full-stack application
-Wants=network-online.target
-After=network-online.target
+Wants=network-online.target mysql.service
+After=network-online.target mysql.service
 
 [Service]
 Type=simple

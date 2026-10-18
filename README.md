@@ -1,59 +1,96 @@
 # LendLog
 
-A small, no-account loan list. Enter an item and borrower, save, and view the
-newest entries first. Names are required and limited to 100 characters.
+Private loan tracking with **Loans** and **History** screens.
+Register/sign in, record an item and borrower, and mark it returned to move it
+into History. Use **Mark outstanding** in History to move it back to Loans.
+Both lists provide **Edit** and **Delete** actions; deletion requires confirmation
+and is permanent. The original orange/dark styling and sidebar are retained.
+Authentication pages have no navigation sidebar.
 
-The visible application stores records **only in this browser's local storage**.
-It does not upload loan names. Refreshing or reopening the same browser preserves
-them; another browser/device starts empty. Clearing site data removes them.
-Anyone using the same browser profile can see them. There is no edit, delete,
-return tracking, account, synchronisation, export or backup workflow.
+Flask, vanilla JavaScript, SQLAlchemy Core/MySQL and Gunicorn remain the stack.
+Passwords are hashed; signed HttpOnly bearer cookies and CSRF checks protect
+browser requests. Loans and history are stored against the authenticated user,
+not a browser identifier or client-supplied user ID.
 
 ## Run locally
+
+Create a MySQL database and user with access to that database. In VS Code,
+create `.env` at the project root, using the keys in `.env.example`:
+
+```dotenv
+DATABASE_URL=mysql+mysqlconnector://YOUR_USER:YOUR_PASSWORD@localhost:3306/YOUR_DATABASE
+JWT_SECRET=YOUR_RANDOM_SECRET_AT_LEAST_32_CHARACTERS
+JWT_ISSUER=zorentia-app
+COOKIE_SECURE=false
+```
+
+Replace every placeholder with your actual values. Generate the secret privately
+with `openssl rand -hex 32`. URL-encode special password characters in the URL.
+Do not commit or share `.env`. Existing exported variables override this file.
+
+For passwordless **local development only**, if `mysql -u root` already works
+without a password, create a dedicated local database and set these in `.env`:
+
+```dotenv
+DATABASE_URL=mysql+mysqlconnector://root@127.0.0.1:3306/lendlog
+ALLOW_PASSWORDLESS_LOCAL_DB=true
+```
+
+Keep a valid random `JWT_SECRET`. This opt-in does not reset MySQL credentials
+or make an existing password-protected user passwordless. Do not use it on AWS;
+use the password-protected database user from the deployment guide there.
 
 ```bash
 cd /Users/danielhuynh/Desktop/comp3850/lendlog-fullstack
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
+flask --app 'fullstack:create_app()' init-db
 flask --app 'fullstack:create_app()' run --debug --port 5001
 ```
 
-Open http://127.0.0.1:5001/. No database or secrets are required for browser-local
-mode. Use localhost or HTTPS; the app uses browser cryptography for record IDs.
+Open http://127.0.0.1:5001/register. Use an unused email and an 8–128 character
+password, confirmed twice. Save and edit a loan, mark it returned, open History,
+and mark it outstanding again. Check Cancel before confirming a deletion.
+Sign out from the sidebar and sign in again. Another account must not see your records.
 
 ```bash
 python -m pytest -q
 ```
 
-Test: save an item/borrower, refresh, reopen the same browser, check two records
-with identical names, and confirm blank names are rejected. A different browser
-profile should have an empty list.
+Tests use isolated SQLite databases, including a file-backed restart check.
+The core account and record workflows were also checked against an isolated
+local MySQL database. Verify `init-db`, `/health` and registration on your
+deployment server as well.
 
-## AWS deployment
+## Existing data
 
-The supplied files follow `deployment-guide` and assume a **separate EC2 instance**,
-repository directory `/home/ubuntu/lendlog`, and Gunicorn port 8000.
-Do not replace the existing apps or their DNS records. If sharing an instance,
-choose an unused port in BOTH the service and Nginx configurations.
+Run `init-db` before starting the updated version. It creates `lendlog_users`
+and `lendlog_loans` without deleting the old `loan_records` table or original
+generated tables. `database/schema.sql` provides equivalent fresh-install SQL.
 
-Authorize this private repository with a read-only deploy key as in the guide:
+Earlier browser-local records remain in that browser and are not automatically
+uploaded, deleted or assigned to a new account. Legacy anonymous API records
+also remain untouched but are not exposed through the new account APIs.
+There is no automatic migration because those records have no verified owner.
+
+## AWS EC2
+
+Follow `deployment-guide` with these project-specific values:
+
+- Repository: `git@github.com:DanielHuynh611/lendlog.git` (private; add a read-only deploy key).
+- Project root: `/home/ubuntu/lendlog`.
+- Service: **lendlog** throughout, not myapp or daily-win.
+- Proposed subdomain: `lendlog.track-my-habit.me`.
+- Gunicorn: one worker, two threads, private port 8000 on a separate instance.
+
+Install MySQL/Python/Nginx using the guide, create the database/user and configure
+the project-root `.env` as above. Then:
 
 ```bash
-git clone git@github.com:DanielHuynh611/lendlog.git
-cd lendlog
-python3 -m venv .venv
+cd /home/ubuntu/lendlog
 source .venv/bin/activate
 python -m pip install -r requirements.txt
-```
-
-Create `.env` using your editor, copying the keys in `.env.example`. For the
-browser-local app, keep `DATABASE_URL=` and `JWT_SECRET=` blank. Database setup
-steps in the guide are optional for this mode; the Flask stack and MySQL
-compatibility are retained. No database worker or MySQL service is needed to
-serve the browser-local UI.
-
-```bash
 chmod 600 .env
 python -m pytest -q
 flask --app 'fullstack:create_app()' init-db
@@ -61,22 +98,22 @@ flask --app 'fullstack:create_app()' routes
 sudo cp deploy/lendlog.service /etc/systemd/system/lendlog.service
 sudo systemctl daemon-reload
 sudo systemctl enable --now lendlog
+sudo systemctl restart lendlog
 curl -fsS --retry 5 --retry-delay 2 --retry-connrefused http://127.0.0.1:8000/health
 ```
 
-Require a successful health check, not just an 'active' service status.
+Stop if setup or health checks fail. 'Active' alone is not a database-readiness check.
 
 ```bash
 sudo cp deploy/nginx.conf /etc/nginx/sites-available/lendlog
 sudo ln -s /etc/nginx/sites-available/lendlog /etc/nginx/sites-enabled/lendlog
 sudo nginx -t
 sudo systemctl reload nginx
-curl -fsS -H 'Host: lendlog.track-my-habit.me' http://127.0.0.1/health
 ```
 
-In Namecheap add one A record: Host `lendlog`, Value the new EC2 **Elastic IP**,
-TTL Automatic. Keep `@`, `www` and `daily-win` unchanged. Ensure the EC2 security
-group permits HTTP 80 and HTTPS 443, not public 8000 or 3306.
+Add an A record with Host `lendlog`, Value the new instance's **Elastic IP**,
+TTL Automatic. Keep existing `@`, `www` and `daily-win` records unchanged.
+Allow inbound ports 80 and 443, not public 8000 or 3306.
 
 ```bash
 nslookup lendlog.track-my-habit.me
@@ -86,13 +123,13 @@ curl -fsS https://lendlog.track-my-habit.me/health
 sudo /snap/bin/certbot renew --dry-run
 ```
 
-After HTTPS works, set `COOKIE_SECURE=true` in `.env` and restart:
-`sudo systemctl restart lendlog`. Test saving and reloading on the final HTTPS
-hostname. HTTP, HTTPS, localhost, an IP address and different ports have separate
-browser storage; test records created before the final URL do not transfer.
+After HTTPS succeeds, set `COOKIE_SECURE=true` in `.env` and restart lendlog.
+Test registration, saving, editing, return/restore, deletion and sign-in
+again at the public HTTPS URL. Open the URL directly in a browser, not through
+Slack's sandboxed PDF preview.
 
-After a reboot, verify `systemctl is-active lendlog nginx` and the public health
-endpoint. Check logs with `sudo journalctl -u lendlog -n 60 --no-pager`.
+On a shared EC2 instance, use a free Gunicorn port in both deployment files and
+a separate database. Do not overwrite another app's service, site or DNS record.
 
 For later updates:
 
@@ -101,40 +138,16 @@ cd /home/ubuntu/lendlog
 git pull --ff-only origin main
 source .venv/bin/activate
 python -m pip install -r requirements.txt
-python -m pytest -q
+flask --app 'fullstack:create_app()' init-db
 sudo systemctl restart lendlog
 curl -fsS --retry 5 --retry-delay 2 --retry-connrefused http://127.0.0.1:8000/health
 ```
 
-## Optional MySQL compatibility
+After reboot, verify `systemctl is-active mysql lendlog nginx` and public health.
+Logs: `sudo journalctl -u lendlog -n 60 --no-pager`.
 
-The generated API routes remain, but are **not used by the visible loan list**.
-They share one SQLAlchemy Core/MySQL table, isolate data by signed browser
-session and require CSRF tokens for writes. There is no account recovery:
-clearing the session cookie loses API access to that browser's server records.
-Do not use this optional API as a recovery or sync mechanism for the local UI.
-
-To exercise the database steps in the deployment guide, create a fresh MySQL
-database and user, then configure actual credentials and a random secret:
-
-```dotenv
-DATABASE_URL=mysql+mysqlconnector://YOUR_USER:YOUR_PASSWORD@localhost:3306/YOUR_DATABASE
-JWT_SECRET=YOUR_RANDOM_SECRET_AT_LEAST_32_CHARACTERS
-JWT_ISSUER=zorentia-app
-COOKIE_SECURE=false
-```
-
-Generate the secret privately with `openssl rand -hex 32`. URL-encode special
-characters in the password; replace every placeholder. Do not post secrets or
-commit `.env`. Run `flask --app 'fullstack:create_app()' init-db` to create missing
-tables, or apply `database/schema.sql` to a fresh database. This is not a migration
-for the original three generated tables. Existing unrelated tables are not
-deleted. MySQL timestamps use UTC.
-
-With a configured database, `/health` checks connectivity and returns 503 on
-failure. Without one, it reports browser-local mode. If a terminal variable
-overrides `.env`, unset that variable and retry. The sample service can add
-`Wants=mysql.service` and `After=mysql.service` to its Unit section in database mode.
-
-Earlier generated verification reports/manifests are historical snapshots, not
-claims that the improved implementation has passed those original checks.
+This small release has no email verification, password reset, account deletion
+or password-change workflow. Sign-out clears browser authentication; previously
+issued tokens remain valid until expiry (24 hours). These are limitations, not
+claims of comprehensive production security. Earlier generated reports and
+manifests are historical snapshots; use the current README and tests.

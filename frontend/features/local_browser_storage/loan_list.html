@@ -1,0 +1,26 @@
+<section class="z-panel" aria-labelledby="loan-list-title">
+  <header class="z-panel-header"><h2 id="loan-list-title">{{ 'Returned loans' if request.path == '/history' else 'Outstanding loans' }}</h2><span id="loan-count" class="lend-count" role="status" aria-live="polite">Loading…</span></header>
+  <div class="z-panel-body z-stack">
+    <p id="list-error" class="lend-error" role="alert" hidden></p>
+    <p id="list-status" role="status" aria-live="polite" hidden></p>
+    <button id="list-retry" class="z-button z-button--secondary" type="button" hidden>Try again</button>
+    <p id="empty-list" class="z-lead" hidden>{{ 'No returned loans yet. Mark an item returned from Loans when it comes back.' if request.path == '/history' else 'No outstanding loans. Record an item and borrower above.' }}</p>
+    <ul id="loan-list" class="lend-loans" aria-label="{{ 'Returned loans' if request.path == '/history' else 'Outstanding loans' }}"></ul>
+    <div><button class="z-button z-button--secondary" id="show-more" type="button" hidden>Show more</button></div>
+  </div>
+</section>
+<dialog id="record-dialog" class="z-dialog" aria-labelledby="record-dialog-title" aria-describedby="record-dialog-description">
+  <h2 id="record-dialog-title"></h2>
+  <p id="record-dialog-description"></p>
+  <p id="record-dialog-error" class="lend-error" role="alert" hidden></p>
+  <form id="record-action-form" class="z-form-actions"><button class="z-button z-button--secondary" id="record-cancel" type="button" autofocus>Cancel</button><button class="z-button z-button--primary" id="record-confirm" type="submit"></button></form>
+</dialog>
+<dialog id="edit-dialog" class="z-dialog" aria-labelledby="edit-title">
+  <h2 id="edit-title">Edit loan</h2>
+  <form id="edit-form" class="z-form" novalidate>
+    <div class="z-field"><label for="edit-item-name">Item name</label><input id="edit-item-name" class="z-input" name="item_name" maxlength="100" required aria-describedby="edit-item-error"><p id="edit-item-error" class="lend-error" hidden></p></div>
+    <div class="z-field"><label for="edit-borrower-name">Borrower's name</label><input id="edit-borrower-name" class="z-input" name="borrower_name" maxlength="100" required aria-describedby="edit-borrower-error"><p id="edit-borrower-error" class="lend-error" hidden></p></div>
+    <p id="edit-error" class="lend-error" role="alert" hidden></p>
+    <div class="z-form-actions"><button id="edit-cancel" class="z-button z-button--secondary" type="button">Cancel</button><button id="edit-save" class="z-button z-button--primary" type="submit">Save changes</button></div>
+  </form>
+</dialog>

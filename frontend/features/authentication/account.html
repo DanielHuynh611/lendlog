@@ -1,0 +1,12 @@
+{% extends "features/local_browser_storage/main_loan_list.html" %}
+{% block page_title %}Account{% endblock %}
+{% block main_content %}
+<header class="z-page-heading"><div><h1>Your account</h1><p class="z-lead">Your sign-in and saved records.</p></div></header>
+<section class="z-panel"><div class="z-panel-body z-stack">
+  <div><h2>Email</h2><p class="lend-account-email">{{ g.user.email }}</p></div>
+  <p class="z-lead">Only your signed-in account can access your loans and returned history. Sign in on another device to see the same records.</p>
+  <p class="z-lead">Earlier browser-only records are not automatically uploaded or deleted.</p>
+  <form method="post" action="/logout"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="z-button z-button--secondary" type="submit">Sign out</button></form>
+</div></section>
+{% endblock %}
+{% block screen_scripts %}{% endblock %}

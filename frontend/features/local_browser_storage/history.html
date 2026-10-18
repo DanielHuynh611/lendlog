@@ -1,0 +1,7 @@
+{% extends "features/local_browser_storage/main_loan_list.html" %}
+{% block page_title %}History{% endblock %}
+{% block main_content %}
+<header class="z-page-heading"><div><h1>Loan history</h1><p class="z-lead">Returned items, kept for your reference.</p></div></header>
+{% include "features/local_browser_storage/loan_list.html" %}
+<div><a class="z-button z-button--secondary" href="/">Back to loans</a></div>
+{% endblock %}

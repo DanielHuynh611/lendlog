@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en" data-theme="orange"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="zorentia-compiler" content="{&quot;compiler_version&quot;: &quot;frontend-visual-compiler-v5&quot;, &quot;library_version&quot;: &quot;zorentia-ui-2&quot;, &quot;foundation_hash&quot;: &quot;12d1e51974db59f59feae268f5864a03df39cac87ce0f2cc64848f5c2418fc0b&quot;, &quot;screen_id&quot;: &quot;capability_local_browser_storage_03ab1d7c.screen.main_loan_list&quot;, &quot;route&quot;: &quot;/&quot;}"><title>My Loans · LendLog</title><style data-zorentia-compiler="frontend-visual-compiler-v5">:root{--z-accent:#ff642f;--z-accent-hover:#ff8055;--z-accent-ink:#1b0902;--z-canvas:#100c0a;--z-glow:rgba(255,100,47,.14);}
+<!DOCTYPE html><html lang="en" data-theme="orange"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="zorentia-compiler" content="{&quot;compiler_version&quot;: &quot;frontend-visual-compiler-v5&quot;, &quot;library_version&quot;: &quot;zorentia-ui-2&quot;, &quot;foundation_hash&quot;: &quot;12d1e51974db59f59feae268f5864a03df39cac87ce0f2cc64848f5c2418fc0b&quot;, &quot;screen_id&quot;: &quot;capability_local_browser_storage_03ab1d7c.screen.main_loan_list&quot;, &quot;route&quot;: &quot;/&quot;}"><meta name="csrf-token" content="{{ csrf_token() }}"><title>{% block page_title %}Loans{% endblock %} · LendLog</title><style data-zorentia-compiler="frontend-visual-compiler-v5">:root{--z-accent:#ff642f;--z-accent-hover:#ff8055;--z-accent-ink:#1b0902;--z-canvas:#100c0a;--z-glow:rgba(255,100,47,.14);}
 /* Canonical specimen components. Theme rules are emitted from themes.json. */
 
 :root {
@@ -1371,23 +1371,40 @@ select option {
 .lend-content .z-form { max-width: none; }
 .lend-content > .z-page-heading { margin-bottom: 8px; }
 #save-status { overflow-wrap: anywhere; }
+.lend-account-email { overflow-wrap: anywhere; margin-bottom: 12px; }
+.lend-row-actions { grid-column: 1 / -1; display: flex; justify-content: space-between; flex-wrap: wrap; align-items: center; gap: 12px; }
+.lend-row-date { color: var(--z-muted); font-size: 12px; }
+.lend-auth { max-width: 480px; margin: auto; min-height: 100dvh; padding: 48px 20px; display: flex; flex-direction: column; justify-content: center; gap: 24px; }
+.lend-auth .z-brand { padding: 0; }
+.lend-auth a:not(.z-brand) { color: var(--z-accent); }
+.z-dialog p { overflow-wrap: anywhere; }
+.lend-record-buttons { display: flex; flex-wrap: wrap; gap: 6px; }
+.lend-danger { color: #f4b4a7; }
 @media (max-width:760px) { .lend-form-grid,.lend-loan { grid-template-columns: 1fr; gap: 12px; } }
 </style></head>
-<body class="z-generated" data-screen-route="/">
+<body class="z-generated" data-view="{{ 'history' if request.path == '/history' else 'loans' }}">
 <a class="z-skip" href="#main-content">Skip to content</a>
+{% block layout %}
 <div class="z-shell">
   <aside class="z-sidebar" id="workspace-navigation" aria-label="Application navigation">
     <a class="z-brand" href="/"><span class="z-brand-mark"><svg class="z-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="m12 3 10 5-10 5L2 8l10-5Zm-10 9 10 5 10-5M2 16l10 5 10-5"/></svg></span><span>LendLog<small>Track your loans.</small></span></a>
     <button class="z-mobile-close z-button z-button--icon" type="button" data-nav-close aria-label="Close navigation">×</button>
-    <nav aria-label="Main"><a class="z-nav-link" href="/" aria-current="page"><svg class="z-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M8 4h13v17H3V4h5M8 3h8v4H8zM7 12h10M7 16h10"/></svg><span>My loans</span></a></nav>
-    <p class="lend-notice">Saved only in this browser. No account or cloud sync. Anyone using this browser profile may see your list.</p>
+    <nav aria-label="Main">
+      {% for path, label, icon in [('/', 'Loans', 'M8 4h13v17H3V4h5M8 3h8v4H8zM7 12h10M7 16h10'), ('/history', 'History', 'M3 12a9 9 0 1 0 3-7M3 3v6h6M12 7v5l3 2')] %}
+      <a class="z-nav-link" href="{{ path }}"{% if request.path == path %} aria-current="page"{% endif %}><svg class="z-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="{{ icon }}"/></svg><span>{{ label }}</span></a>
+      {% endfor %}
+    </nav>
+    <div class="lend-notice">
+      <p class="lend-account-email">{{ g.user.email }}</p>
+      <form method="post" action="/logout"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="z-button z-button--ghost" type="submit">Sign out</button></form>
+    </div>
   </aside>
   <button class="z-nav-scrim" type="button" data-nav-close aria-label="Close navigation" hidden></button>
   <div class="z-workspace">
-    <header class="z-context"><div class="z-breadcrumb"><button type="button" class="z-button z-button--icon z-menu" data-nav-toggle aria-controls="workspace-navigation" aria-expanded="false" aria-label="Open navigation"><svg class="z-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><span>LendLog</span><span aria-hidden="true">/</span><strong>My loans</strong></div></header>
-    <main class="z-main" id="main-content"><div class="lend-content z-stack">
-      <header class="z-page-heading"><div><h1>My loans</h1><p class="z-lead">Keep a simple record of what you lent and to whom.</p></div></header>
-      <noscript><p class="lend-error">Enable JavaScript to save and view your browser-local loan list.</p></noscript>
+    <header class="z-context"><div class="z-breadcrumb"><button type="button" class="z-button z-button--icon z-menu" data-nav-toggle aria-controls="workspace-navigation" aria-expanded="false" aria-label="Open navigation"><svg class="z-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><span>LendLog</span><span aria-hidden="true">/</span><strong>{{ 'History' if request.path == '/history' else 'Account' if request.path == '/account' else 'Loans' }}</strong></div></header>
+    <main class="z-main" id="main-content"><div class="lend-content z-stack">{% block main_content %}
+      <header class="z-page-heading"><div><h1>Your loans</h1><p class="z-lead">Record what you lend. Mark it returned when it's back.</p></div></header>
+      <noscript><p class="lend-error">Enable JavaScript to save and view your loans.</p></noscript>
       <section class="z-panel" aria-labelledby="add-loan-title">
         <header class="z-panel-header"><h2 id="add-loan-title">Record a loan</h2></header>
         <div class="z-panel-body z-stack">
@@ -1396,24 +1413,19 @@ select option {
               <div class="z-field"><label for="item-name">Item name</label><input class="z-input" id="item-name" name="item_name" type="text" maxlength="100" required autocomplete="off" placeholder="e.g. Cordless drill" aria-describedby="item-help item-error"><small id="item-help">Up to 100 characters.</small><p id="item-error" class="lend-error" hidden></p></div>
               <div class="z-field"><label for="borrower-name">Borrower's name</label><input class="z-input" id="borrower-name" name="borrower_name" type="text" maxlength="100" required autocomplete="off" placeholder="e.g. Alex" aria-describedby="borrower-help borrower-error"><small id="borrower-help">Up to 100 characters.</small><p id="borrower-error" class="lend-error" hidden></p></div>
             </div>
-            <p class="lend-error" id="storage-error" role="alert" hidden></p>
+            <p class="lend-error" id="save-error" role="alert" hidden></p>
             <p class="z-sr-only" id="validation-status" role="alert"></p>
             <div class="z-form-actions"><button class="z-button z-button--primary" id="save-loan" type="submit" disabled>Save loan</button></div>
           </form>
           <p id="save-status" role="status" aria-live="polite" hidden></p>
         </div>
       </section>
-      <section class="z-panel" aria-labelledby="loan-list-title">
-        <header class="z-panel-header"><h2 id="loan-list-title">Saved loans</h2><span id="loan-count" class="lend-count" role="status" aria-live="polite"></span></header>
-        <div class="z-panel-body">
-          <p id="empty-list" class="z-lead" hidden>No loans yet. Add an item and borrower above.</p>
-          <ul id="loan-list" class="lend-loans" aria-label="Saved loans, newest first"></ul>
-        </div>
-      </section>
-      <p class="z-lead">Your list stays on this browser and device. Clearing site data removes it permanently.</p>
-    </div></main>
+      {% include "features/local_browser_storage/loan_list.html" %}
+      <p class="z-lead">Loans are private to your account and available when you sign in on another device.</p>
+    {% endblock %}</div></main>
   </div>
 </div>
+{% endblock %}
 <script src="/__frontend_assets/frontend/shared/ui/library.js" defer></script>
-<script src="/__frontend_assets/frontend/features/local_browser_storage/lendlog.js" defer></script>
+{% block screen_scripts %}<script src="/__frontend_assets/frontend/features/local_browser_storage/lendlog.js" defer></script>{% endblock %}
 </body></html>
