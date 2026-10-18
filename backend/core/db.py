@@ -21,10 +21,11 @@ loans = Table(
     Column('created_at', DateTime, nullable=False),
     Column('status', String(16), nullable=False, server_default='active'),
     Column('returned_at', DateTime, nullable=True),
-    CheckConstraint(func.char_length(func.trim(column('item_name'))).between(1, 100), name='ck_loan_item'),
-    CheckConstraint(func.char_length(func.trim(column('borrower_name'))).between(1, 100), name='ck_loan_borrower'),
-    CheckConstraint("status IN ('active', 'returned')", name='ck_loan_status'),
-    CheckConstraint("(status = 'active' AND returned_at IS NULL) OR (status = 'returned' AND returned_at IS NOT NULL)", name='ck_loan_return_date'),
+    # MySQL CHECK names are database-wide, including names on legacy tables.
+    CheckConstraint(func.char_length(func.trim(column('item_name'))).between(1, 100), name='ck_lendlog_loans_item'),
+    CheckConstraint(func.char_length(func.trim(column('borrower_name'))).between(1, 100), name='ck_lendlog_loans_borrower'),
+    CheckConstraint("status IN ('active', 'returned')", name='ck_lendlog_loans_status'),
+    CheckConstraint("(status = 'active' AND returned_at IS NULL) OR (status = 'returned' AND returned_at IS NOT NULL)", name='ck_lendlog_loans_return_date'),
     Index('ix_lendlog_user_status_created', 'user_id', 'status', 'created_at'),
 )
 

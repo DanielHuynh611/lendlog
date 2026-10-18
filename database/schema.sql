@@ -14,10 +14,10 @@ CREATE TABLE IF NOT EXISTS lendlog_loans (
   status VARCHAR(16) NOT NULL DEFAULT 'active',
   returned_at DATETIME NULL,
   CONSTRAINT fk_lendlog_user FOREIGN KEY (user_id) REFERENCES lendlog_users(id),
-  CONSTRAINT ck_loan_item CHECK (CHAR_LENGTH(TRIM(item_name)) BETWEEN 1 AND 100),
-  CONSTRAINT ck_loan_borrower CHECK (CHAR_LENGTH(TRIM(borrower_name)) BETWEEN 1 AND 100),
-  CONSTRAINT ck_loan_status CHECK (status IN ('active', 'returned')),
-  CONSTRAINT ck_loan_return_date CHECK (
+  CONSTRAINT ck_lendlog_loans_item CHECK (CHAR_LENGTH(TRIM(item_name)) BETWEEN 1 AND 100),
+  CONSTRAINT ck_lendlog_loans_borrower CHECK (CHAR_LENGTH(TRIM(borrower_name)) BETWEEN 1 AND 100),
+  CONSTRAINT ck_lendlog_loans_status CHECK (status IN ('active', 'returned')),
+  CONSTRAINT ck_lendlog_loans_return_date CHECK (
     (status = 'active' AND returned_at IS NULL)
     OR (status = 'returned' AND returned_at IS NOT NULL)
   ),

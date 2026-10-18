@@ -1,6 +1,6 @@
 # Account-enabled application verification — 17 October 2026
 
-- 73 automated checks passed: registration/login/logout, password hashing,
+- 74 automated checks passed: registration/login/logout, password hashing,
   input validation, CSRF, ownership isolation, edit/delete/return/restore, database
   restart persistence, repeatable schema setup and legacy-table preservation.
 - Desktop (1440px) and mobile (390px) browser flows passed: registration,
@@ -14,6 +14,9 @@
   fresh SQL schema, init-db, registration/login, Unicode, edit, return/restore,
   ownership isolation, restart persistence and deletion. Only the temporary
   test database was removed afterward; existing databases were unchanged.
+- A further MySQL upgrade check confirmed that the new table's CHECK names
+  coexist with all four legacy CHECK names. Repeated init-db preserved the
+  legacy table and its data; no existing constraints need to be dropped.
 - EC2, DNS, TLS issuance and Linux systemd execution are not performed here.
 
 The files in verification/ retain the original generator's historical reports.

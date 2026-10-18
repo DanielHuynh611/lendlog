@@ -203,6 +203,16 @@ def test_mysql_constraints_measure_characters():
     assert 'char_length(trim(item_name))' in ddl
     assert 'char_length(trim(borrower_name))' in ddl
 
+def test_check_names_do_not_collide_with_legacy_tables():
+    from pathlib import Path
+    from sqlalchemy import CheckConstraint
+    names = {constraint.name for constraint in loans.constraints if isinstance(constraint, CheckConstraint)}
+    assert names == {'ck_lendlog_loans_item', 'ck_lendlog_loans_borrower',
+                     'ck_lendlog_loans_status', 'ck_lendlog_loans_return_date'}
+    schema = (Path(__file__).resolve().parents[1] / 'database' / 'schema.sql').read_text()
+    for name in names:
+        assert 'CONSTRAINT ' + name + ' CHECK' in schema
+
 def test_persistence_and_second_device_login(tmp_path):
     config = {'DATABASE_URL': 'sqlite+pysqlite:///' + str(tmp_path / 'loans.db'), 'SESSION_COOKIE_SECURE': False}
     first = create_app(testing=True, config=config)
