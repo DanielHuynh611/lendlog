@@ -1,6 +1,21 @@
 <section class="z-panel" aria-labelledby="loan-list-title">
   <header class="z-panel-header"><h2 id="loan-list-title">{{ 'Returned loans' if request.path == '/history' else 'Outstanding loans' }}</h2><span id="loan-count" class="lend-count" role="status" aria-live="polite">Loading…</span></header>
   <div class="z-panel-body z-stack">
+    <div class="lend-list-tools">
+      <div class="z-field lend-search-field">
+        <label for="loan-search">Search loans</label>
+        <input class="z-input" id="loan-search" type="search" maxlength="100" autocomplete="off" placeholder="Item or borrower" aria-describedby="loan-search-help">
+        <small id="loan-search-help">Search this {{ 'history' if request.path == '/history' else 'outstanding list' }} by item or borrower.</small>
+      </div>
+      <div class="z-field">
+        <label for="loan-sort">Sort by</label>
+        <select class="z-input" id="loan-sort">
+          <option value="newest">Newest first</option>
+          <option value="oldest">Oldest first</option>
+        </select>
+      </div>
+      <div class="lend-clear-search"><button class="z-button z-button--secondary" id="clear-search" type="button" hidden>Clear search</button></div>
+    </div>
     <p id="list-error" class="lend-error" role="alert" hidden></p>
     <p id="list-status" role="status" aria-live="polite" hidden></p>
     <button id="list-retry" class="z-button z-button--secondary" type="button" hidden>Try again</button>

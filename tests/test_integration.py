@@ -2,7 +2,7 @@
 import re
 from datetime import datetime, timezone, timedelta
 import pytest
-from sqlalchemy import insert, select, text
+from sqlalchemy import insert, select, text, update
 from fullstack import create_app
 from backend.core.auth import AUTH_COOKIE, issue_token
 from backend.core.db import users, loans
@@ -88,6 +88,9 @@ def test_main_screen_navigation_and_assets(app):
         assert '<span>Account</span>' not in page.text
         assert 'href="' + path + '" aria-current="page"' in page.text
         assert '--z-accent:#ff642f' in page.text
+        assert 'id="loan-search"' in page.text
+        assert 'id="loan-sort"' in page.text
+        assert 'id="clear-search"' in page.text
         assert "frame-ancestors 'none'" in page.headers['Content-Security-Policy']
     assert 'alex@example.com' in client.get('/').text
     assert client.get('/account').headers['Location'] == '/'
@@ -156,6 +159,41 @@ def test_return_moves_owned_loan_to_history(app):
     assert post(client, {}, path).status_code == 409
     assert post(client, {}, API + '/missing/return').status_code == 404
     assert client.get(API + '?status=invalid').status_code == 400
+
+
+def test_search_sort_count_and_literal_wildcards(app):
+    client = logged_in(app)
+    first = post(client, {'item_name': 'Heavy Jacket', 'borrower_name': 'Sam'}).json
+    middle = post(client, {'item_name': '100% Wool Scarf', 'borrower_name': 'Alex Nickname'}).json
+    last = post(client, {'item_name': 'Book', 'borrower_name': 'Jordan'}).json
+    moments = [datetime(2026, 10, day) for day in (1, 2, 3)]
+    with app.extensions['database_engine'].begin() as connection:
+        for record, moment in zip((first, middle, last), moments):
+            connection.execute(update(loans).where(loans.c.id == record['id']).values(created_at=moment))
+
+    result = client.get(API + '?status=active&q=%20jAcKeT%20&sort=newest')
+    assert result.status_code == 200
+    assert result.json['count'] == 1
+    assert result.json['query'] == 'jAcKeT'
+    assert result.json['loans'][0]['id'] == first['id']
+    assert client.get(API + '?status=active&q=nickname').json['loans'][0]['id'] == middle['id']
+    assert client.get(API + '?status=active&q=%25').json['loans'][0]['id'] == middle['id']
+
+    newest = client.get(API + '?status=active&sort=newest').json['loans']
+    oldest = client.get(API + '?status=active&sort=oldest').json['loans']
+    assert [row['id'] for row in newest] == [last['id'], middle['id'], first['id']]
+    assert [row['id'] for row in oldest] == [first['id'], middle['id'], last['id']]
+
+
+def test_search_and_sort_validation_and_account_isolation(app):
+    alice, bob = logged_in(app), logged_in(app, 'bob@example.com')
+    post(alice, {'item_name': 'Private Jacket', 'borrower_name': 'Sam'})
+    post(bob, {'item_name': 'Public Jacket', 'borrower_name': 'Alex'})
+    result = alice.get(API + '?status=active&q=jacket&sort=newest')
+    assert result.json['count'] == 1
+    assert result.json['loans'][0]['item_name'] == 'Private Jacket'
+    assert alice.get(API + '?sort=sideways').status_code == 400
+    assert alice.get(API + '?q=' + ('x' * 101)).status_code == 400
 
 def test_csrf_protects_mutations(app):
     client = logged_in(app)

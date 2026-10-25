@@ -4,7 +4,9 @@ Private loan tracking with **Loans** and **History** screens.
 Register/sign in, record an item and borrower, and mark it returned to move it
 into History. Use **Mark outstanding** in History to move it back to Loans.
 Both lists provide **Edit** and **Delete** actions; deletion requires confirmation
-and is permanent. The original orange/dark styling and sidebar are retained.
+and is permanent. Search either list by item or borrower, sort it newest or
+oldest first, and clear the search to restore the full list. The result count
+updates for the current search. The original orange/dark styling and sidebar are retained.
 Authentication pages have no navigation sidebar.
 
 Flask, vanilla JavaScript, SQLAlchemy Core/MySQL and Gunicorn remain the stack.

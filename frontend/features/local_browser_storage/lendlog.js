@@ -12,6 +12,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const listError = document.getElementById('list-error');
   const retry = document.getElementById('list-retry');
   const more = document.getElementById('show-more');
+  const search = document.getElementById('loan-search');
+  const sort = document.getElementById('loan-sort');
+  const clearSearch = document.getElementById('clear-search');
   const dialog = document.getElementById('record-dialog');
   const actionForm = document.getElementById('record-action-form');
   const actionConfirm = document.getElementById('record-confirm');
@@ -26,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const editError = document.getElementById('edit-error');
   const listStatus = document.getElementById('list-status');
   let pending = null, editing = null, recordBusy = false;
-  let records = [], busy = false, limit = 20, loadVersion = 0;
+  let records = [], busy = false, limit = 20, loadVersion = 0, searchTimer = null;
 
   async function request(url, options = {}) {
     const response = await fetch(url, {
@@ -90,17 +93,28 @@ document.addEventListener('DOMContentLoaded', () => {
       return row;
     });
     list.replaceChildren(...nodes);
-    document.getElementById('empty-list').hidden = records.length !== 0;
-    document.getElementById('loan-count').textContent = records.length + (records.length === 1 ? ' loan' : ' loans');
+    const query = search.value.trim();
+    const empty = document.getElementById('empty-list');
+    empty.hidden = records.length !== 0;
+    empty.textContent = query ? 'No matching loans. Try another item or borrower.' : history ? 'No returned loans yet. Mark an item returned from Loans when it comes back.' : 'No outstanding loans. Record an item and borrower above.';
+    document.getElementById('loan-count').textContent = records.length + (records.length === 1 ? (query ? ' matching loan' : ' loan') : (query ? ' matching loans' : ' loans'));
+    clearSearch.hidden = !query;
     more.hidden = limit >= records.length;
+  }
+  function listUrl() {
+    const parameters = new URLSearchParams({ status: history ? 'returned' : 'active', sort: sort.value });
+    const query = search.value.trim();
+    if (query) parameters.set('q', query);
+    return '/api/loans?' + parameters.toString();
   }
   async function load() {
     const version = ++loadVersion;
+    limit = 20;
     list.setAttribute('aria-busy', 'true');
     listError.hidden = true;
     retry.hidden = true;
     try {
-      const result = await request('/api/loans?status=' + (history ? 'returned' : 'active'));
+      const result = await request(listUrl());
       if (version !== loadVersion) return;
       records = result.loans;
       render();
@@ -269,6 +283,23 @@ document.addEventListener('DOMContentLoaded', () => {
     button.disabled = false;
   }
   more.addEventListener('click', () => { limit += 20; render(); });
+  search.addEventListener('input', () => {
+    clearSearch.hidden = !search.value.trim();
+    window.clearTimeout(searchTimer);
+    searchTimer = window.setTimeout(load, 250);
+  });
+  search.addEventListener('search', () => {
+    window.clearTimeout(searchTimer);
+    load();
+  });
+  sort.addEventListener('change', load);
+  clearSearch.addEventListener('click', () => {
+    window.clearTimeout(searchTimer);
+    search.value = '';
+    clearSearch.hidden = true;
+    load();
+    search.focus();
+  });
   retry.addEventListener('click', load);
   // Refresh from the server when returning from another tab; no personal data is cached locally.
   document.addEventListener('visibilitychange', () => { if (!document.hidden && !busy && !recordBusy && !dialog.open && !editDialog.open) load(); });

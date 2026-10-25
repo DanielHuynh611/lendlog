@@ -3,7 +3,7 @@ import uuid
 from datetime import datetime, timezone
 
 from flask import g, jsonify, request
-from sqlalchemy import delete, insert, select, update
+from sqlalchemy import delete, func, insert, or_, select, update
 from backend.core.auth import require_auth
 from backend.core.db import get_engine, loans
 
@@ -23,13 +23,30 @@ def records_response(collection='loans'):
         status = request.args.get('status', 'all')
         if status not in {'active', 'returned', 'all'}:
             return jsonify(error='INVALID_STATUS', message='Choose active, returned or all loans.'), 400
+        sort = request.args.get('sort', 'newest')
+        if sort not in {'newest', 'oldest'}:
+            return jsonify(error='INVALID_SORT', message='Choose newest or oldest loans.'), 400
+        search = request.args.get('q', '').strip()
+        if len(search) > 100:
+            return jsonify(error='INVALID_SEARCH', message='Search using no more than 100 characters.'), 400
         query = select(loans).where(loans.c.user_id == g.user['id'])
         if status != 'all':
             query = query.where(loans.c.status == status)
-        order = loans.c.returned_at.desc() if status == 'returned' else loans.c.created_at.desc()
+        if search:
+            needle = search.lower()
+            query = query.where(or_(
+                func.lower(loans.c.item_name).contains(needle, autoescape=True),
+                func.lower(loans.c.borrower_name).contains(needle, autoescape=True),
+            ))
+        date_column = loans.c.returned_at if status == 'returned' else loans.c.created_at
+        direction = date_column.asc if sort == 'oldest' else date_column.desc
+        secondary = loans.c.created_at.asc if sort == 'oldest' else loans.c.created_at.desc
+        identifier = loans.c.id.asc if sort == 'oldest' else loans.c.id.desc
         with engine.connect() as connection:
-            values = [serialize(row) for row in connection.execute(query.order_by(order, loans.c.created_at.desc(), loans.c.id.desc())).mappings()]
-        return jsonify({collection: values})
+            values = [serialize(row) for row in connection.execute(
+                query.order_by(direction(), secondary(), identifier())
+            ).mappings()]
+        return jsonify({collection: values, 'count': len(values), 'query': search, 'sort': sort})
     data = request.get_json(silent=True)
     if not isinstance(data, dict):
         return jsonify(error='VALIDATION_ERROR', message='Send item_name and borrower_name as an object.'), 400
