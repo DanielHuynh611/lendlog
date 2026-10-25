@@ -1380,9 +1380,11 @@ select option {
 .z-dialog p { overflow-wrap: anywhere; }
 .lend-record-buttons { display: flex; flex-wrap: wrap; gap: 6px; }
 .lend-danger { color: #f4b4a7; }
-.lend-list-tools { display: grid; grid-template-columns: minmax(0, 1fr) minmax(150px, 210px) auto; align-items: end; gap: 16px; }
-.lend-clear-search { padding-bottom: 1px; }
-@media (max-width:760px) { .lend-form-grid,.lend-loan,.lend-list-tools { grid-template-columns: 1fr; gap: 12px; } .lend-clear-search .z-button { width: 100%; } }
+.lend-list-tools { display: grid; grid-template-columns: minmax(260px, 1fr) minmax(170px, 230px) auto; align-items: start; gap: 16px; }
+.lend-list-tools .z-field { align-self: start; }
+.lend-list-tools .z-input { width: 100%; }
+.lend-clear-search { align-self: start; padding-top: 29px; }
+@media (max-width:760px) { .lend-form-grid,.lend-loan,.lend-list-tools { grid-template-columns: 1fr; gap: 12px; } .lend-clear-search { padding-top: 0; } .lend-clear-search .z-button { width: 100%; } }
 </style></head>
 <body class="z-generated" data-view="{{ 'history' if request.path == '/history' else 'loans' }}">
 <a class="z-skip" href="#main-content">Skip to content</a>
